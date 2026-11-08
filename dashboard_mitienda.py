@@ -1,6 +1,7 @@
 import base64
 import io
 import json
+import os
 import textwrap
 import warnings
 
@@ -18,7 +19,7 @@ warnings.filterwarnings("ignore")
 # ----------------------------------------------------------------------------
 FUENTE = "excel"                     # "excel" | "mysql" | "postgresql" | "sqlserver" | "sqlite"
 RUTA_EXCEL = "Mi_Tienda.xls"
-SALIDA_HTML = "dashboard_mitienda.html"
+SALIDA_HTML = "public/index.html"
 SUBIR_EXCEL_A_BD = False             # True la primera vez que uses una BD (crea las tablas)
 
 CONEXIONES = {   # cambia usuario, clave, host y nombre de la base
@@ -333,7 +334,7 @@ function render(){
 $('anio').onchange=$('trim').onchange=render; render();
 </script></body></html>"""
 
-
+import os
 def main():
     T = cargar_tablas()
     H = construir_hechos(T)
@@ -343,6 +344,7 @@ def main():
             .replace("__TITULOS__", json.dumps([t for t, _ in GRAFICOS], ensure_ascii=False))
             .replace("__RANGO__", f"{H['fecha'].min():%d/%m/%Y} al {H['fecha'].max():%d/%m/%Y}")
             .replace("__ANIOS__", json.dumps(anios)).replace("__TRIMS__", json.dumps(trims)))
+    os.makedirs("public", exist_ok=True)
     with open(SALIDA_HTML, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Listo -> {SALIDA_HTML}  ({len(html)/1e6:.1f} MB)")
@@ -355,3 +357,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
